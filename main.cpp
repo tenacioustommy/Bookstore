@@ -36,17 +36,31 @@ int main(){
                 isvalid(account.Login(cmd[2].c_str()));
             }
         }else if(instruction=="logout"){
+            if(cmd_cnt==1){
             isvalid(account.Logout());
+            }else{
+                isvalid(-1);
+            }
         }else if(instruction=="register"){
-            isvalid(account.Register(cmd[2].c_str(),cmd[3].c_str(),cmd[4].c_str()));
+            if(cmd_cnt==4){
+                isvalid(account.Register(cmd[2].c_str(),cmd[3].c_str(),cmd[4].c_str()));
+            }else{
+                isvalid(-1);
+            }
         }else if(instruction=="passwd"){
             if(cmd_cnt==3){
                 isvalid(account.Revicepwd(cmd[2].c_str(),cmd[3].c_str()));
             }else if(cmd_cnt==4){
                 isvalid(account.Revicepwd(cmd[2].c_str(),cmd[3].c_str(),cmd[4].c_str()));
+            }else{
+                isvalid(-1);
             }
         }else if(instruction=="useradd"){
-            isvalid(account.Addaccount(cmd[2].c_str(),cmd[3].c_str(),cmd[4].c_str(),cmd[5].c_str()));
+            if(cmd_cnt==5){
+                isvalid(account.Addaccount(cmd[2].c_str(),cmd[3].c_str(),cmd[4].c_str(),cmd[5].c_str()));
+            }else{
+                isvalid(-1);
+            }
         }else if(instruction=="delete"){
             isvalid(account.Removeaccount(cmd[2].c_str()));
         }else{

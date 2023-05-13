@@ -35,10 +35,14 @@ public:
         string30 userid("root");
         User user(string30("sjtu"),7);
         account.insert(userid,user);
+        logged.push(0);
     }
     ~Accountsystem(){}
 };
 int Accountsystem::Removeaccount(const char* userid){
+    if(logged.top()!=7){
+        return -1;
+    }
     if(!account.remove(string30(userid))){
         return -1;
     }else{
@@ -61,7 +65,7 @@ bool Accountsystem::isvalidstr(const char* str){
         return 1;
     }
 int Accountsystem::Logout(){
-        if(logged.size()==0){
+        if(logged.size()==1){
             return -1;
         }
         logged.pop();
@@ -94,10 +98,12 @@ int Accountsystem::Revicepwd(const char* userid,const char* pwd1,const char* pwd
         if(pos==-1){
             return -1;
         }else{
-            if(user.privilege==BOSS){
+            if(logged.top()==BOSS){
                 user.pwd=string30(pwd1);
                 account.revise(pos,string30(userid),user);
                 return 0;
+            }else if(pwd2==nullptr){
+                return -1;
             }else{
                 if(user.pwd!=string30(pwd1)){
                     return -1;
@@ -114,20 +120,18 @@ int Accountsystem::Addaccount(const char* userid,const char* pwd,const char* pri
         User user;
         string<30> usrid(userid),passwd(pwd);
         int priv=privilege[0]-'0';
-        if(!isprivileged(priv)){
+        if(logged.top()<=priv){
             return -1;
         }else{
-            account.insert(usrid,User(passwd,priv));
-            return 0;
+            if(account.insert(usrid,User(passwd,priv)))
+            {
+                return 0;
+            }else{
+                return -1;
+            }
+            
         } 
     }
-bool Accountsystem::isprivileged(int i){
-    if(logged.size()==0||logged.top()<i){
-        return 0;
-    }else{
-        return 1;
-    }
-}
 int Accountsystem::Register(const char* userid,const char* pwd,const char* username){
     User user;
     string<30> usrid(userid),passwd(pwd);

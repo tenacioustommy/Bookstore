@@ -15,19 +15,19 @@
         },
         {
             "label": "make",
-            "group":{
-                "kind":"build",
-                "isDefault":true
+            "group": {
+                "kind": "build",
+                "isDefault": true
             },
-            "command": "mingw32-make.exe",
-            "args":[
-            ]
+            "command": "make",
+            "args": [],
+            "problemMatcher": []
         },
         {
-            "label":"Build my project",
-            "dependsOn":[
+            "label": "Build my project",
+            "dependsOn": [
                 "cmake",
-                "make"                
+                "make"
             ]
         }
     ]
