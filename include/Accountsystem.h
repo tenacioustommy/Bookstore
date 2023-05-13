@@ -30,7 +30,8 @@ public:
     int Revicepwd(const char* userid,const char* pwd1,const char* pwd2);
     int Addaccount(const char* userid,const char* pwd,const char* privilege,const char* username);
     int Removeaccount(const char* userid);
-    Accountsystem():account(UnrolledLinkedList<string30,User>("./Account")){
+    Accountsystem(){
+        account.init("./Account");
         string30 userid("root");
         User user(string30("sjtu"),7);
         account.insert(userid,user);

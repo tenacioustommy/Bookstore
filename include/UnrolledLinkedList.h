@@ -97,6 +97,25 @@ public:
             file.write(reinterpret_cast<char*>(&next),sizeof(next));
         }
     }
+    void init(const char* name){
+        filename=new char[strlen(name)+1];
+        strcpy(filename,name);
+        file.open(filename,std::ios::binary|std::ios::out|std::ios::in);
+        if(!file){
+            file.open(filename,std::ios::out);
+            file.close();
+            file.open(filename,std::ios::binary|std::ios::out|std::ios::in);
+        }
+        if(!file){
+            std::cout<<"error!";
+        }
+        if(file.peek()==std::ios::traits_type::eof()){
+            int next=-1;
+            file.clear();
+            file.seekp(0,std::ios::beg);
+            file.write(reinterpret_cast<char*>(&next),sizeof(next));
+        }
+    }
     //maybe insert repeated data
     bool insert(const Key& index,const Value& value){
         mypair vec[N];
