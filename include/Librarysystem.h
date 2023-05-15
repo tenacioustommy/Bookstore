@@ -2,36 +2,68 @@
 #define LIBRARY_H
 #include<cmath>
 #include"UnrolledLinkedList.h"
-struct Book{
-    string<60> bookname;
-    string<60> author;
-    string<60> keyword;
-    float price;
-    int quantity=0;
-    Book(){}
-    Book(string<60> bookname,string<60> author,string<60> keyword,float price,int quantity=0):bookname(bookname),author(author),keyword(keyword),price(price),quantity(quantity){}
-};
+
 class Librarysystem
 {
     typedef string<20> ISBN;
     typedef string<60> string60;
 private:
-    UnrolledLinkedList<ISBN,Book> Library;
+    struct Book{
+        ISBN isbn;
+        string60 bookname;
+        string60 author;
+        string60 keyword;
+        float price;
+        int quantity=0;
+        Book(){}
+        Book(ISBN isbn):isbn(isbn){}
+        Book(ISBN isbn,string60 bookname,string60 author,string60 keyword,float price,int quantity=0):isbn(isbn),bookname(bookname),author(author),keyword(keyword),price(price),quantity(quantity){}
+        
+    };
+    int sizeofbook=sizeof(Book);
+    UnrolledLinkedList<ISBN,int> ISBNindex;
+    UnrolledLinkedList<string60,int> NAMEindex;
+    UnrolledLinkedList<string60,int> Authorindex;
+    UnrolledLinkedList<string60,int> Keywordindex;
+    std::fstream file;
+    const char* filename="Library";
+    
+    int booknum;
     int selectedpos=-1;
     Book selectedbook;
-    ISBN selectedisbn;
+    //insert or revise book at certain pos,by default the last
+    int insert(Book book,int pos=-1){
+        if(pos==-1){
+            pos=sizeof(booknum)+booknum*sizeofbook;
+        }
+        file.seekp(pos);
+        file.tellp();
+        file.write(reinterpret_cast<char*>(&book),sizeofbook);
+        booknum++;
+        return pos;
+    }
+    void getbook(Book& book,int pos){
+        file.seekg(pos);
+        file.read(reinterpret_cast<char*>(&book),sizeofbook);
+    }
+    void update(){
+        insert(selectedbook,selectedpos);
+    }
     /* data */
 public:
     void Showall(){
 
     }
     int Show(std::string which,std::string content){
+            std::vector<int> vec;
             if(which=="ISBN"){
-                
-                
+                ISBNindex.findall(ISBN(content),vec);
             }else if(which=="name"){         
+                NAMEindex.findall(string60(content),vec);
             }else if(which=="author"){
+                Authorindex.findall(string60(content),vec);
             }else if(which=="keyword"){
+                Keywordindex.findall(string60(content),vec);
             }else{
                 return -1;
             }
@@ -46,20 +78,18 @@ public:
         int num=totalcost/quantity;
         if(fmod(totalcost,quantity)==0){
             selectedbook.quantity+=num;
+            update();
             return 0;
         }else{
             return -1;
         }
     }
-    void Select(const char* isbn){
-        Book book;
-        std::pair<int,bool> tmp=Library.insert(ISBN(isbn),book);
-        selectedpos=tmp.first;
-        if(tmp.second){
-            selectedisbn=ISBN(isbn);
-            selectedbook=book;
+    void Select(std::string isbn){
+        int tmp=ISBNindex.find(ISBN(isbn),selectedpos);
+        if(tmp!=-1){
+            getbook(selectedbook,selectedpos);
         }else{
-            Library.readone(selectedpos,selectedisbn,selectedbook);
+            insert(Book(ISBN(isbn)));
         }
     }
     int Modify(const std::string* which,const std::string* content,int count){
@@ -69,28 +99,63 @@ public:
         for(int i=0;i<count;i++){
             if(which[i]=="ISBN"){
                 ISBN tmp(content[i]);
-                if(tmp==selectedisbn){
+                if(tmp==selectedbook.isbn){
                     return -1;
                 }else{
-                    selectedisbn=tmp;
+                    ISBNindex.remove(selectedbook.isbn,selectedpos);
+                    selectedbook.isbn=tmp;
+                    ISBNindex.insert(tmp,selectedpos);
                 }
             }else if(which[i]=="name"){
-                selectedbook.bookname=string60(content[i]);            
+                string60 tmp(content[i]);
+                if(tmp!=selectedbook.bookname){
+                    NAMEindex.remove(selectedbook.bookname,selectedpos);
+                    selectedbook.bookname=tmp;
+                    NAMEindex.insert(tmp,selectedpos);
+                }        
             }else if(which[i]=="author"){
-                selectedbook.author=string60(content[i]);
+                string60 tmp(content[i]);
+                if(tmp!=selectedbook.bookname){
+                    Authorindex.remove(selectedbook.bookname,selectedpos);
+                    selectedbook.bookname=tmp;
+                    Authorindex.insert(tmp,selectedpos);
+                }        
             }else if(which[i]=="keyword"){
-                selectedbook.keyword=string60(content[i]);
+                string60 tmp(content[i]);
+                //todo  
             }else if(which[i]=="price"){
                 selectedbook.price=std::stoi(content[i]);
-            }else{
-                return -1;
-            }   
+            }
         }
-        Library.revise(selectedpos,selectedisbn,selectedbook);
+        update();
         return 0;
     }
-    Librarysystem(/* args */);
-    ~Librarysystem();
+    Librarysystem(/* args */)
+    {
+        ISBNindex.init("ISBNindex");
+        NAMEindex.init("NAMEindex");
+        Authorindex.init("Authorindex");
+        Keywordindex.init("keywordindex");
+        file.open(filename,std::ios::out);
+        file.close();
+        file.open(filename,std::ios::binary|std::ios::out|std::ios::in);
+        if(!file){
+            std::cout<<"error!";
+        }
+        if(file.peek()==std::ios::traits_type::eof()){
+            booknum=0;
+            file.clear();
+            file.seekp(0,std::ios::beg);
+            file.write(reinterpret_cast<char*>(&booknum),sizeof(booknum));
+        }
+        file.seekg(0);
+        file.read(reinterpret_cast<char*>(&booknum),sizeof(booknum));
+    }
+
+
+    ~Librarysystem(){
+        file.close();
+    }
 };
 
 

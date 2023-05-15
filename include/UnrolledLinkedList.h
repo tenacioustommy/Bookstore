@@ -20,6 +20,15 @@ struct string {
     bool operator< (const string &rhs) const {
         return strcmp(buf, rhs.buf) < 0;
     }
+    bool operator> (const string &rhs) const {
+        return strcmp(buf, rhs.buf) > 0;
+    }
+    bool operator>= (const string &rhs) const {
+        return strcmp(buf, rhs.buf) >= 0;
+    }
+    bool operator<= (const string &rhs) const {
+        return strcmp(buf, rhs.buf) <= 0;
+    }
     bool operator== (const string &rhs) const {
         return strcmp(buf, rhs.buf) == 0;
     }
@@ -91,12 +100,9 @@ public:
     UnrolledLinkedList(const char* name){
         filename=new char[strlen(name)+1];
         strcpy(filename,name);
+        file.open(filename,std::ios::out);
+        file.close();
         file.open(filename,std::ios::binary|std::ios::out|std::ios::in);
-        if(!file){
-            file.open(filename,std::ios::out);
-            file.close();
-            file.open(filename,std::ios::binary|std::ios::out|std::ios::in);
-        }
         if(!file){
             std::cout<<"error!";
         }
@@ -198,7 +204,52 @@ public:
                 }
         }
     }
+    //remove certain one
+    void remove(const Key& index,const Value& value){
+        int lastpos=0;
+        int next,size;
+        std::pair<Key,Value> vec[N];
+        file.seekg(0,std::ios::beg);
+        file.read(reinterpret_cast<char*>(&next),sizeof(next));
+        if(next==-1){
+            return;
+        }else{
+            file.seekg(next,std::ios::beg);
+        }
+        while(1){
+            // 从文件中读取向量数据
+                read(vec,next,size);
+                int readpos=file.tellg();
+                if(next==-1||index<=vec[size-1].first){
+                    for(int i=0;i<size;i++){
+                        if(index==vec[i].first&&value==vec[i].second){
+                            size--;
+                            if(size==0){
+                                file.seekp(lastpos,std::ios::beg);
+                                file.write(reinterpret_cast<char*>(&next),sizeof(next));
+                            }else{
+                                for(int j=i;j<size;j++){
+                                    vec[j]=vec[j+1];
+                                }
+                                file.seekp(readpos,std::ios::beg);
+                                file.write(reinterpret_cast<char*>(&next),sizeof(next));
+                                file.write(reinterpret_cast<char*>(&size),sizeof(size));
+                                file.seekp(sizeof(std::pair<Key,Value>)*i,std::ios::cur);
+                                file.write(reinterpret_cast<char*>(vec+i), sizeof(std::pair<Key,Value>)*(size-i));
+                            }
+                            break;
+                        }
+                    }
+                    // write(vec,next,size,0);
+                    return;
+                }else{
+                    file.seekg(next,std::ios::beg);
+                    lastpos=next;
+                }
+        }
+    }
     //maybe don't exist, remove nothing is possible
+
     bool remove(const Key& index){
         int lastpos=0;
         int next,size;
@@ -248,92 +299,45 @@ public:
         file.write(reinterpret_cast<char*>(&tmp),sizeofpair);
     }
     
-    //find all 
-    
-    void findall(std::string str,const auto& value,std::vector<int>& vect){
-        
+    //find all value in vec,give no pos
+    void findall(const Key& index,std::vector<Value>& vec){
         int next,size;
-        Mypair vec[N];
+        bool flag=false;
+        Mypair pair[N];
         file.clear();
         file.seekg(0,std::ios::beg);
         file.read(reinterpret_cast<char*>(&next),sizeof(next));
         if(next==-1){
-            return;
+            return ;
         }else{
             file.seekg(next,std::ios::beg);
         }
-        if(str=="ISBN"){
-            while(1){
-                // 从文件中读取向量数据
-                    read(vec,next,size);
-                    if(next==-1||value<vec[size-1].first||value==vec[size-1].first){
-                        for(int i=0;i<size;i++){
-                            if(value==vec[i].first){
-                                vect.push_back(file.tellg()+2*sizeof(int)+i*sizeofpair);
-                                return ;
-                            }
+        while(1){
+            // 从文件中读取向量数据
+                read(pair,next,size);
+                if(next==-1||(index<=pair[size-1].first&&index>=pair[0].first)){
+                    for(int i=0;i<size;i++){
+                        if(index==pair[i].first){
+                            vec.push_back(pair[i].second);
+                            flag=true;
                         }
-                        return ;
                     }
-                    if(next==-1){
-                        break;
-                    }else{
-                        file.seekg(next,std::ios::beg);
-                    }   
-            }
-        }else if(str=="name"){
-            while(1){
-                // 从文件中读取向量数据
-                read(vec,next,size);
-                for(int i=0;i<size;i++){
-                    if(vec[i].second.bookname==value){
-                        vect.push_back(file.tellg()+2*sizeof(int)+i*sizeofpair);
-                    }
+                }else if(flag==true){
+                    return;
                 }
                 if(next==-1){
                     break;
                 }else{
                     file.seekg(next,std::ios::beg);
-                }   
-            }
-        }else if(str=="author"){
-            while(1){
-                // 从文件中读取向量数据
-                read(vec,next,size);
-                for(int i=0;i<size;i++){
-                    if(vec[i].second.author==value){
-                        vect.push_back(file.tellg()+2*sizeof(int)+i*sizeofpair);
-                    }
                 }
-                if(next==-1){
-                    break;
-                }else{
-                    file.seekg(next,std::ios::beg);
-                }   
-            }
-        }else if(str=="keyword"){
-            while(1){
-                // 从文件中读取向量数据
-                read(vec,next,size);
-                for(int i=0;i<size;i++){
-                    if(vec[i].second.keyword==value){
-                        vect.push_back(file.tellg()+2*sizeof(int)+i*sizeofpair);
-                    }
-                }
-                if(next==-1){
-                    break;
-                }else{
-                    file.seekg(next,std::ios::beg);
-                }   
-            }
         }
-       
+        return ;
     }
     //success then return pos of element,fail then return -1
     int find(const Key& index,Value& value){
         int next,size;
         bool flag=false;
-        Mypair vec[N];
+        Mypair pair[N];
         file.clear();
         file.seekg(0,std::ios::beg);
         file.read(reinterpret_cast<char*>(&next),sizeof(next));
@@ -344,11 +348,11 @@ public:
         }
         while(1){
             // 从文件中读取向量数据
-                read(vec,next,size);
-                if(next==-1||index<vec[size-1].first||index==vec[size-1].first){
+                read(pair,next,size);
+                if(next==-1||index<=pair[size-1].first){
                     for(int i=0;i<size;i++){
-                        if(index==vec[i].first){
-                            value=vec[i].second;
+                        if(index==pair[i].first){
+                            value=pair[i].second;
                             return file.tellg()+2*sizeof(next)+i*sizeofpair;
                         }
                     }

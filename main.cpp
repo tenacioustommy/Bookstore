@@ -133,6 +133,7 @@ int main(){
                     }
                     else {
                         isvalid(-1);
+                        continue;
                     } 
                 }
                 isvalid(library.Modify(which,content,cmd_cnt-1));
@@ -142,7 +143,7 @@ int main(){
             if(cmd_cnt!=2){
                 isvalid(-1);
             }else{
-                library.Select(cmd[2].c_str());
+                library.Select(cmd[2]);
             }
         }else if(instruction=="show"){
             if(cmd_cnt==1){
