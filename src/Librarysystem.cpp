@@ -144,13 +144,13 @@ int Librarysystem::insert(Book& book,int pos){
                     int start = 0, end = 0;
                     if(!str.empty()){
                         while ((end = str.find(separator, start)) != std::string::npos) {
-                            std::string token = content[i].substr(start, end - start);
+                            std::string token = str.substr(start, end - start);
                             start = end + 1;
                             Keywordindex.remove(string60(token),bookstack.top().second);
                         }
                         Keywordindex.remove(string60(str.substr(start)),bookstack.top().second);
                     }
-                    bookstack.top().first.keyword=tmp;
+                    
                     //input new key
                     start=0;
                     end=0;
@@ -165,9 +165,10 @@ int Librarysystem::insert(Book& book,int pos){
                         Keywordindex.insert(string60(token),bookstack.top().second);
                     }
                     Keywordindex.insert(string60(newstr.substr(start)),bookstack.top().second);
+                    bookstack.top().first.keyword=tmp;
                 }  
             }else if(which[i]=="price"){
-                bookstack.top().first.price=std::stof(content[i]);
+                bookstack.top().first.price=std::stod(content[i]);
             }else{
                 throw std::exception();
             }
