@@ -37,6 +37,7 @@ int Logsystem::show(int count){
         }   
         std::cout<<"+ "<<totalin<<" - "<<totalout<<'\n';
     }
+    return 0;
 }
 Logsystem::Logsystem(/* args */)
 {   

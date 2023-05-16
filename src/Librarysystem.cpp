@@ -26,12 +26,18 @@ int Librarysystem::insert(Book book,int pos){
     /* data */
 
     int Librarysystem::buy(ISBN isbn,int quantity){
+        if(quantity<1){
+            return -1;
+        }
         Book book;
         int pos;
         if(ISBNindex.find(isbn,pos)==-1){
             return -1;
         }else{
             getbook(book,pos);
+            if(book.quantity<quantity){
+                return -1;
+            }
             book.quantity-=quantity;
             logsys.Add(quantity*book.price,0);
             std::cout<<std::fixed<<std::setprecision(2)<<quantity*book.price<<'\n';
@@ -103,7 +109,9 @@ int Librarysystem::insert(Book book,int pos){
                 }else{
                     ISBNindex.remove(bookstack.top().first.isbn,bookstack.top().second);
                     bookstack.top().first.isbn=tmp;
-                    ISBNindex.insert(tmp,bookstack.top().second);
+                    if(ISBNindex.insertunique(tmp,bookstack.top().second).second==false){
+                        return -1;
+                    }
                 }
             }else if(which[i]=="name"){
                 string60 tmp(content[i]);
@@ -168,20 +176,25 @@ int Librarysystem::insert(Book book,int pos){
         NAMEindex.init("NAMEindex");
         Authorindex.init("Authorindex");
         Keywordindex.init("keywordindex");
-        file.open(filename,std::ios::out);
-        file.close();
+        
+        
         file.open(filename,std::ios::binary|std::ios::out|std::ios::in);
         if(!file){
-            std::cout<<"error!";
-        }
-        if(file.peek()==std::ios::traits_type::eof()){
+            file.open(filename,std::ios::out);
+            file.close();
+            file.open(filename,std::ios::binary|std::ios::out|std::ios::in);
             booknum=0;
             file.clear();
             file.seekp(0,std::ios::beg);
             file.write(reinterpret_cast<char*>(&booknum),sizeof(booknum));
+        }else{
+            file.seekg(0);
+            file.read(reinterpret_cast<char*>(&booknum),sizeof(booknum));
         }
-        file.seekg(0);
-        file.read(reinterpret_cast<char*>(&booknum),sizeof(booknum));
+        if(!file){
+            std::cout<<"error!";
+        }
+        
     }
     Librarysystem::~Librarysystem(){
         file.seekp(0);

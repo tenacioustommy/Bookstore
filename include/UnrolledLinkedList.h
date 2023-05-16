@@ -120,15 +120,12 @@ public:
             file.open(filename,std::ios::out);
             file.close();
             file.open(filename,std::ios::binary|std::ios::out|std::ios::in);
+            int next=-1;
+            file.seekp(0,std::ios::beg);
+            file.write(reinterpret_cast<char*>(&next),sizeof(next));
         }
         if(!file){
             std::cout<<"error!";
-        }
-        if(file.peek()==std::ios::traits_type::eof()){
-            int next=-1;
-            file.clear();
-            file.seekp(0,std::ios::beg);
-            file.write(reinterpret_cast<char*>(&next),sizeof(next));
         }
     }
     void readone(const int pos,Key& index,Value& value){
