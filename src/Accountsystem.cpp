@@ -1,6 +1,18 @@
 #include"Accountsystem.h"
 Accountsystem account;
+Accountsystem::Accountsystem(){
+        account.init("Account");
+        string30 userid("root");
+        User user(string30("sjtu"),7);
+        account.insertunique(userid,user);
+        logged.push(0);
+    }
 int Accountsystem::Removeaccount(const char* userid){
+    for(auto it=idvec.begin();it!=idvec.end();it++){
+        if(*it==userid){
+            return -1;
+        }
+    }
     if(!account.remove(string30(userid))){
         return -1;
     }else{
@@ -28,6 +40,7 @@ int Accountsystem::Logout(){
         }
         logged.pop();
         library.bookstack.pop();
+        idvec.pop_back();
         //update book ,very keng
         if(!library.bookstack.empty()){
             int pos=library.bookstack.top().second;
@@ -51,11 +64,13 @@ int Accountsystem::Login(const char* userid,const char* pwd){
             if(logged.size()!=0&&logged.top()>user.privilege){
                 logged.push(user.privilege);
                 library.bookstack.push(std::pair<Book,int>(Book(),-1));
+                idvec.push_back(string30(userid));
                 return 0;
             }else{
                 if(string30(pwd)==user.pwd){
                     logged.push(user.privilege);
                     library.bookstack.push(std::pair<Book,int>(Book(),-1));
+                    idvec.push_back(string30(userid));
                     return 0;
                 }
                 return -1;

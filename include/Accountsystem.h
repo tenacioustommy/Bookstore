@@ -15,6 +15,7 @@ private:
     /* data */
     struct User
     {
+    
         int privilege;
         string30 pwd;
         User()=default;
@@ -25,6 +26,7 @@ private:
     bool isprivileged(int i);
     bool isvalidstr(const char* str);
 public:
+    std::vector<string30> idvec;
     std::stack<int> logged;
     int Login(const char* userid,const char* pwd=nullptr);
     int Logout();
@@ -32,13 +34,7 @@ public:
     int Revicepwd(const char* userid,const char* pwd1,const char* pwd2=nullptr);
     int Addaccount(const char* userid,const char* pwd,int privilege,const char* username);
     int Removeaccount(const char* userid);
-    Accountsystem(){
-        account.init("Account");
-        string30 userid("root");
-        User user(string30("sjtu"),7);
-        account.insertunique(userid,user);
-        logged.push(0);
-    }
+    Accountsystem();
     ~Accountsystem(){}
 };
 

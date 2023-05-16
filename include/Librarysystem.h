@@ -12,7 +12,7 @@ struct Book{
     string60 bookname;
     string60 author;
     string60 keyword;
-    double price=0;
+    double price=0.00;
     int quantity=0;
     Book(){}
     Book(ISBN isbn):isbn(isbn){}

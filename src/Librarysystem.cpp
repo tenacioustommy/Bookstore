@@ -141,20 +141,10 @@ int Librarysystem::insert(Book& book,int pos){
                     if(newstr[0]==separator||newstr[newstr.size()-1]==separator){
                         return -1;
                     }
-                    int start = 0, end = 0;
-                    if(!str.empty()){
-                        while ((end = str.find(separator, start)) != std::string::npos) {
-                            std::string token = str.substr(start, end - start);
-                            start = end + 1;
-                            Keywordindex.remove(string60(token),bookstack.top().second);
-                        }
-                        Keywordindex.remove(string60(str.substr(start)),bookstack.top().second);
-                    }
                     
-                    //input new key
-                    start=0;
-                    end=0;
                     std::set<std::string> setstring;
+                    int start = 0, end = 0;
+                    std::string token;
                     while ((end = newstr.find(separator, start)) != std::string::npos) {
                         std::string token = newstr.substr(start, end - start);
                         start = end + 1;
@@ -162,11 +152,32 @@ int Librarysystem::insert(Book& book,int pos){
                             return -1;
                         }
                         setstring.insert(token);
-                        Keywordindex.insert(string60(token),bookstack.top().second);
                     }
-                    Keywordindex.insert(string60(newstr.substr(start)),bookstack.top().second);
+                    token=newstr.substr(start);
+                    if(token.size()==0||setstring.find(token)!=setstring.end()){
+                        return -1;
+                    }
+                    setstring.insert(token);
+                    
+                    start=0;
+                    end=0;
+                    if(!str.empty()){
+                        while ((end = str.find(separator, start)) != std::string::npos) {
+                            token = str.substr(start, end - start);
+                            start = end + 1;
+                            Keywordindex.remove(string60(token),bookstack.top().second);
+                        }
+                        Keywordindex.remove(string60(str.substr(start)),bookstack.top().second);
+                    }
+
+                    //input new key
+                    for(auto it=setstring.begin();it!=setstring.end();it++){
+                        Keywordindex.insert(string60(*it),bookstack.top().second);
+                    }
+                    
                     bookstack.top().first.keyword=tmp;
-                }  
+                }
+                
             }else if(which[i]=="price"){
                 bookstack.top().first.price=std::stod(content[i]);
             }else{

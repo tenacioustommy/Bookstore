@@ -1,5 +1,5 @@
 # 打开文件并读取每一行数据
-with open('build/testdir/1.out', 'r') as file1, open('build/complex/testcase1/1.ans', 'r') as file2:
+with open('build/testdir/5.out', 'r') as file1, open('build/complex/testcase1/5.ans', 'r') as file2:
     # 读取文件内容作为列表
     file1_lines = file1.readlines()
     file2_lines = file2.readlines()

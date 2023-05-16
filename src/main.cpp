@@ -82,7 +82,7 @@ int main(){
             if(cmd_cnt!=3){
                 isvalid(-1);
             }else{
-                isvalid(library.Import(stoi(cmd[2]),stof(cmd[3])));
+                isvalid(library.Import(stoi(cmd[2]),stod(cmd[3])));
             }
         }else if(instruction=="buy"){
             if(!ispriviledged(CUSTOMER))continue;
