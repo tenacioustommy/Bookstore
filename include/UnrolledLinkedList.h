@@ -5,6 +5,7 @@
 #include<cstring>
 #include<sstream>
 #include<vector>
+#include<iomanip>
 #define N 600
 
 template<int SIZE>
@@ -51,7 +52,7 @@ template<class Key,class Value>
 class UnrolledLinkedList{
 private: 
     typedef std::pair<Key,Value> Mypair;
-    char* filename;
+    std::string filename;
     std::fstream file;
     int sizeofpair=sizeof(Mypair);
 
@@ -97,25 +98,23 @@ private:
 
 public:
     UnrolledLinkedList()=default;
-    UnrolledLinkedList(const char* name){
-        filename=new char[strlen(name)+1];
-        strcpy(filename,name);
-        file.open(filename,std::ios::out);
-        file.close();
-        file.open(filename,std::ios::binary|std::ios::out|std::ios::in);
-        if(!file){
-            std::cout<<"error!";
-        }
-        if(file.peek()==std::ios::traits_type::eof()){
-            int next=-1;
-            file.clear();
-            file.seekp(0,std::ios::beg);
-            file.write(reinterpret_cast<char*>(&next),sizeof(next));
-        }
-    }
+    // UnrolledLinkedList(const char* name){
+        
+    //     file.open(filename,std::ios::out);
+    //     file.close();
+    //     file.open(filename,std::ios::binary|std::ios::out|std::ios::in);
+    //     if(!file){
+    //         std::cout<<"error!";
+    //     }
+    //     if(file.peek()==std::ios::traits_type::eof()){
+    //         int next=-1;
+    //         file.clear();
+    //         file.seekp(0,std::ios::beg);
+    //         file.write(reinterpret_cast<char*>(&next),sizeof(next));
+    //     }
+    // }
     void init(const char* name){
-        filename=new char[strlen(name)+1];
-        strcpy(filename,name);
+        filename=std::string(name);
         file.open(filename,std::ios::binary|std::ios::out|std::ios::in);
         if(!file){
             file.open(filename,std::ios::out);
@@ -139,12 +138,75 @@ public:
         index=mypair.first;
         value=mypair.second;
     }
-    /*maybe insert repeated data,
+    //index can be repeated,but can't both the same
+    void insert(const Key& index,const Value& value){
+        std::pair<Key,Value> vec[N];
+        std::pair<Key,Value> tmp(index,value);
+        int next,size=0;
+        file.seekg(0,std::ios::beg);
+        file.read(reinterpret_cast<char*>(&next),sizeof(next));
+        if(next==-1){
+                vec[0]=tmp;
+            // 将向量数据本身写入文件
+                next=4;
+                int tmpint=-1;
+                size=1;
+                write(vec,tmpint,size,1);
+            //change init pos
+                file.seekp(0,std::ios::beg);
+                file.write(reinterpret_cast<char*>(&next),sizeof(next));
+                return;
+                
+        }else{
+            file.seekg(next,std::ios::beg);
+        }
+        while(1){
+                read(vec,next,size);
+                int readpos=file.tellg();
+            // 从文件中读取向量数据
+                if(size==N){
+                    std::pair<Key,Value> newvec[N];
+                    for(int i=0;i<N/2;++i){
+                        newvec[i]=vec[i+N/2];
+                    }
+                    size=N/2;
+                    file.seekp(0,std::ios::end);
+                    int newnext=file.tellp();
+                    write(newvec,next,size,1);
+                    
+                    file.seekp(readpos,std::ios::beg);
+                    file.write(reinterpret_cast<char*>(&newnext),sizeof(newnext));
+                    file.write(reinterpret_cast<char*>(&size),sizeof(size));
+                    next=newnext;
+                }
+                if(next==-1||index<=vec[size-1].first){
+                    int i;
+                    for(i=0;i<size;i++){
+                        if(index<vec[i].first){
+                            break;
+                        }
+                    }
+                    for(int j=size;j>i;--j){
+                        vec[j]=vec[j-1];
+                    }
+                    vec[i]=tmp;
+                    size++;
+                    file.seekp(readpos+sizeof(next),std::ios::beg);
+                    file.write(reinterpret_cast<char*>(&size),sizeof(size));
+                    file.seekp(i*sizeof(std::pair<Key,Value>),std::ios::cur);
+                    file.write(reinterpret_cast<char*>(vec+i), sizeof(std::pair<Key,Value>)*(size-i));
+                    return;
+                }else{
+                    file.seekg(next,std::ios::beg);
+                }
+        }
+    }
+    /*maybe insert repeated data, index is unique
     success then return pair of pos of element 
     fail then return pair of pos of existed element
     both including key and value!!
     */
-    std::pair<int,bool> insert(const Key& index,const Value& value){
+    std::pair<int,bool> insertunique(const Key& index,const Value& value){
         Mypair vec[N];
         Mypair tmp(index,value);
         int next,size=0;
@@ -298,7 +360,31 @@ public:
         Mypair tmp(index,value);
         file.write(reinterpret_cast<char*>(&tmp),sizeofpair);
     }
-    
+    void findall(std::vector<Value>& vec){
+        int next,size;
+        Mypair pair[N];
+        file.clear();
+        file.seekg(0,std::ios::beg);
+        file.read(reinterpret_cast<char*>(&next),sizeof(next));
+        if(next==-1){
+            return ;
+        }else{
+            file.seekg(next,std::ios::beg);
+        }
+        while(1){
+            // 从文件中读取向量数据
+                read(pair,next,size);
+                for(int i=0;i<size;i++){
+                        vec.push_back(pair[i].second);
+                    }
+                if(next==-1){
+                    break;
+                }else{
+                    file.seekg(next,std::ios::beg);
+                }
+        }
+        return ;
+    }
     //find all value in vec,give no pos
     void findall(const Key& index,std::vector<Value>& vec){
         int next,size;

@@ -55,7 +55,14 @@
 			"typeinfo": "cpp",
 			"sstream": "cpp",
 			"cstring": "cpp",
-			"optional": "cpp"
+			"optional": "cpp",
+			"filesystem": "cpp",
+			"chrono": "cpp",
+			"codecvt": "cpp",
+			"ctime": "cpp",
+			"set": "cpp",
+			"ratio": "cpp",
+			"iomanip": "cpp"
 		}
 	},
 	

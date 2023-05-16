@@ -1,5 +1,5 @@
 #include"Accountsystem.h"
-
+Accountsystem account;
 int Accountsystem::Removeaccount(const char* userid){
     if(!account.remove(string30(userid))){
         return -1;
@@ -27,6 +27,7 @@ int Accountsystem::Logout(){
         //     return -1;
         // }
         logged.pop();
+        library.bookstack.pop();
         return 0;
     }
 int Accountsystem::Login(const char* userid,const char* pwd){
@@ -39,10 +40,12 @@ int Accountsystem::Login(const char* userid,const char* pwd){
         }else{
             if(logged.size()!=0&&logged.top()>user.privilege){
                 logged.push(user.privilege);
+                library.bookstack.push(std::pair<Book,int>(Book(),-1));
                 return 0;
             }else{
                 if(string30(pwd)==user.pwd){
                     logged.push(user.privilege);
+                    library.bookstack.push(std::pair<Book,int>(Book(),-1));
                     return 0;
                 }
                 return -1;
@@ -80,7 +83,7 @@ int Accountsystem::Addaccount(const char* userid,const char* pwd,int privilege,c
         if(logged.top()<=privilege){
             return -1;
         }else{
-            if(account.insert(usrid,User(passwd,privilege)).second)
+            if(account.insertunique(usrid,User(passwd,privilege)).second)
             {
                 return 0;
             }else{
@@ -92,7 +95,7 @@ int Accountsystem::Addaccount(const char* userid,const char* pwd,int privilege,c
 int Accountsystem::Register(const char* userid,const char* pwd,const char* username){
     User user;
     string<30> usrid(userid),passwd(pwd);
-    if(!account.insert(usrid,User(passwd,1)).second){
+    if(!account.insertunique(usrid,User(passwd,1)).second){
         return -1;
     }else{
         return 0;

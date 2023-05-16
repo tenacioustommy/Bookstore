@@ -1,8 +1,6 @@
 #include"Accountsystem.h"
 #include"Librarysystem.h"
-extern Librarysystem library;
-
-bool ispriviledged(int neededprivilege,const Accountsystem& account){
+bool ispriviledged(int neededprivilege){
     if(account.logged.top()<neededprivilege){    
         std::cout<<"Invalid\n";
         return 0;
@@ -16,11 +14,11 @@ void isvalid(int cmd){
     }
 }
 int main(){
+    
     std::cin.sync_with_stdio(false);
     std::string line;
     std::stringstream ss;
     std::string cmd[10];
-    Accountsystem account;
     std::string instruction;
     while(getline(std::cin,line)){
         int cmd_cnt=0;
@@ -46,7 +44,7 @@ int main(){
                 isvalid(account.Login(cmd[2].c_str()));
             }
         }else if(instruction=="logout"){
-            if(!ispriviledged(CUSTOMER,account))continue;
+            if(!ispriviledged(CUSTOMER))continue;
             if(cmd_cnt==1){
                 isvalid(account.Logout());
             }else{
@@ -59,7 +57,7 @@ int main(){
                 isvalid(-1);
             }
         }else if(instruction=="passwd"){
-            if(!ispriviledged(CUSTOMER,account))continue;
+            if(!ispriviledged(CUSTOMER))continue;
             if(cmd_cnt==3){
                 isvalid(account.Revicepwd(cmd[2].c_str(),cmd[3].c_str()));
             }else if(cmd_cnt==4){
@@ -68,16 +66,31 @@ int main(){
                 isvalid(-1);
             }
         }else if(instruction=="useradd"){
-            if(!ispriviledged(WORKER,account))continue;
+            if(!ispriviledged(WORKER))continue;
             if(cmd_cnt==5){
                 isvalid(account.Addaccount(cmd[2].c_str(),cmd[3].c_str(),std::stoi(cmd[4]),cmd[5].c_str()));
             }else{
                 isvalid(-1);
             }
         }else if(instruction=="delete"){
-            if(!ispriviledged(BOSS,account))continue;
+            if(!ispriviledged(BOSS))continue;
             isvalid(account.Removeaccount(cmd[2].c_str()));
+        }else if(instruction=="import"){
+            if(!ispriviledged(WORKER))continue;
+            if(cmd_cnt!=3){
+                isvalid(-1);
+            }else{
+                isvalid(library.Import(stoi(cmd[2]),stof(cmd[3])));
+            }
+        }else if(instruction=="buy"){
+            if(!ispriviledged(CUSTOMER))continue;
+            if(cmd_cnt!=3){
+                isvalid(-1);
+            }else{
+                isvalid(library.buy(ISBN(cmd[2]),stoi(cmd[3])));
+            }
         }else if(instruction=="modify"){
+            if(!ispriviledged(WORKER))continue;
             if(cmd_cnt>6){
                 isvalid(-1);
             }   
@@ -140,16 +153,23 @@ int main(){
                 
             }
         }else if(instruction=="select"){
+            if(!ispriviledged(WORKER))continue;
             if(cmd_cnt!=2){
                 isvalid(-1);
             }else{
                 library.Select(cmd[2]);
             }
         }else if(instruction=="show"){
+            if(!ispriviledged(CUSTOMER))continue;
             if(cmd_cnt==1){
-                library.Showall();
+                library.Show("all");
             }else if(cmd[2]=="finance"){
-
+                if(!ispriviledged(BOSS))continue;
+                if(cmd_cnt==2){
+                    logsys.show();
+                }else if(cmd_cnt==3){
+                   isvalid(logsys.show(stoi(cmd[3])));
+                }
             }else{
                 if(cmd_cnt>=3){
                     isvalid(-1);
@@ -203,9 +223,6 @@ int main(){
             }
             
         }
-        
-        
-        
         else{
             isvalid(-1);
         }

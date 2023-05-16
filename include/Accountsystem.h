@@ -5,6 +5,7 @@
 #define CUSTOMER 1
 #define GUEST 0
 #include"UnrolledLinkedList.h"
+#include"Librarysystem.h"
 #include<stack>
 
 class Accountsystem
@@ -32,14 +33,15 @@ public:
     int Addaccount(const char* userid,const char* pwd,int privilege,const char* username);
     int Removeaccount(const char* userid);
     Accountsystem(){
-        account.init("./Account");
+        account.init("Account");
         string30 userid("root");
         User user(string30("sjtu"),7);
-        account.insert(userid,user);
+        account.insertunique(userid,user);
         logged.push(0);
     }
     ~Accountsystem(){}
 };
 
+extern Accountsystem account;
 
 #endif
