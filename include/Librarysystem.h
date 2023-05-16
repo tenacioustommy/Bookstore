@@ -40,11 +40,11 @@ private:
     
     //insert or revise book at certain pos,by default the last
     int insert(Book& book,int pos=-1);
-    void getbook(Book& book,int pos);
+    
     void update();
     /* data */
 public:
-    bool isuserselected=0;
+    void getbook(Book& book,int pos);
     std::stack<std::pair<Book,int>> bookstack;
     int buy(ISBN isbn,int quantity);
     void Show(std::string which,std::string content=std::string());

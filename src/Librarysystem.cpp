@@ -22,7 +22,7 @@ int Librarysystem::insert(Book& book,int pos){
     }
     void Librarysystem::update(){
         
-        file.seekp(bookstack.top().second);
+        file.seekp(bookstack.top().second,std::ios::beg);
         file.write(reinterpret_cast<char*>(&bookstack.top().first),sizeofbook);
     }
     /* data */
@@ -172,6 +172,7 @@ int Librarysystem::insert(Book& book,int pos){
             }else{
                 throw std::exception();
             }
+            
         }
         update();
         return 0;

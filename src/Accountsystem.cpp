@@ -23,11 +23,21 @@ bool Accountsystem::isvalidstr(const char* str){
         return 1;
     }
 int Accountsystem::Logout(){
-        // if(logged.size()==1){
-        //     return -1;
-        // }
+        if(logged.size()==1){
+            return -1;
+        }
         logged.pop();
         library.bookstack.pop();
+        //update book ,very keng
+        if(!library.bookstack.empty()){
+            int pos=library.bookstack.top().second;
+            if(pos!=-1){
+                library.getbook(library.bookstack.top().first,pos);
+            }
+        
+        }
+        
+        
         return 0;
     }
 int Accountsystem::Login(const char* userid,const char* pwd){
