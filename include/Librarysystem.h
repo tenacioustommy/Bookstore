@@ -39,7 +39,7 @@ private:
     int booknum;
     
     //insert or revise book at certain pos,by default the last
-    int insert(Book book,int pos=-1);
+    int insert(Book& book,int pos=-1);
     void getbook(Book& book,int pos);
     void update();
     /* data */

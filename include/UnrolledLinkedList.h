@@ -95,7 +95,18 @@ private:
         }
         
     }
-
+    bool less(const std::pair<Key,Value>& a,const std::pair<Key,Value>& b){
+        if(a.first<b.first){
+            return 1;
+        }else if(a.first==b.first){
+            if(a.second<b.second){
+                return 1;
+            }else{return 0;}
+        }else{
+            return 0;
+        }
+    }
+    
 public:
     UnrolledLinkedList()=default;
     // UnrolledLinkedList(const char* name){
@@ -136,7 +147,7 @@ public:
         value=mypair.second;
     }
     //index can be repeated,but can't both the same
-    void insert(const Key& index,const Value& value){
+    int insert(const Key& index,const Value& value){
         std::pair<Key,Value> vec[N];
         std::pair<Key,Value> tmp(index,value);
         int next,size=0;
@@ -152,7 +163,7 @@ public:
             //change init pos
                 file.seekp(0,std::ios::beg);
                 file.write(reinterpret_cast<char*>(&next),sizeof(next));
-                return;
+                return 0;
                 
         }else{
             file.seekg(next,std::ios::beg);
@@ -176,23 +187,29 @@ public:
                     file.write(reinterpret_cast<char*>(&size),sizeof(size));
                     next=newnext;
                 }
-                if(next==-1||index<=vec[size-1].first){
+                if(next==-1||less(tmp,vec[size-1])||tmp==vec[size-1]){
                     int i;
-                    for(i=0;i<size;i++){
-                        if(index<vec[i].first){
+                    bool flag=false;
+                    for(i=0;i<size+1;++i){
+                        if((i==size||less(tmp,vec[i]))&&(i==0||less(vec[i-1],tmp))){
+                            for(int j=size;j>i;--j){
+                                vec[j]=vec[j-1];
+                            }
+                            flag=true;
                             break;
                         }
                     }
-                    for(int j=size;j>i;--j){
-                        vec[j]=vec[j-1];
+                    if(flag){
+                        size++;
+                        vec[i]=tmp;
+                        file.seekp(readpos+sizeof(next),std::ios::beg);
+                        file.write(reinterpret_cast<char*>(&size),sizeof(size));
+                        file.seekp(i*sizeof(std::pair<Key,Value>),std::ios::cur);
+                        file.write(reinterpret_cast<char*>(vec+i), sizeof(std::pair<Key,Value>)*(size-i));
+                    }else{
+                        return -1;
                     }
-                    vec[i]=tmp;
-                    size++;
-                    file.seekp(readpos+sizeof(next),std::ios::beg);
-                    file.write(reinterpret_cast<char*>(&size),sizeof(size));
-                    file.seekp(i*sizeof(std::pair<Key,Value>),std::ios::cur);
-                    file.write(reinterpret_cast<char*>(vec+i), sizeof(std::pair<Key,Value>)*(size-i));
-                    return;
+                    return 0;
                 }else{
                     file.seekg(next,std::ios::beg);
                 }
@@ -418,6 +435,7 @@ public:
     }
     //success then return pos of element,fail then return -1
     int find(const Key& index,Value& value){
+
         int next,size;
         bool flag=false;
         Mypair pair[N];

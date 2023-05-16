@@ -4,12 +4,14 @@ std::ostream& operator<<(std::ostream& out,Book& book){
     out<<book.isbn<<"\t"<<book.bookname<<"\t"<<book.author<<"\t"<<book.keyword<<"\t"<<std::fixed<<std::setprecision(2)<<book.price<<"\t"<<book.quantity<<"\n";
     return out;
 }
-int Librarysystem::insert(Book book,int pos){
+
+int Librarysystem::insert(Book& book,int pos){
         if(pos==-1){
-            pos=sizeof(booknum)+booknum*sizeofbook;
+           file.seekp(0,std::ios::end); 
+        }else{
+            file.seekp(pos,std::ios::beg);
         }
-        file.seekp(pos);
-        file.tellp();
+        pos=file.tellp();
         file.write(reinterpret_cast<char*>(&book),sizeofbook);
         booknum++;
         return pos;
@@ -94,7 +96,7 @@ int Librarysystem::insert(Book book,int pos){
         }else{
             bookstack.top().first=Book(ISBN(isbn));
             bookstack.top().second=insert(bookstack.top().first);
-            ISBNindex.insert(ISBN(isbn),bookstack.top().second);
+            ISBNindex.insertunique(ISBN(isbn),bookstack.top().second);
         }
     }
     int Librarysystem::Modify(const std::string* which,const std::string* content,int count){
@@ -107,11 +109,12 @@ int Librarysystem::insert(Book book,int pos){
                 if(tmp==bookstack.top().first.isbn){
                     return -1;
                 }else{
-                    ISBNindex.remove(bookstack.top().first.isbn,bookstack.top().second);
-                    bookstack.top().first.isbn=tmp;
                     if(ISBNindex.insertunique(tmp,bookstack.top().second).second==false){
                         return -1;
                     }
+                    ISBNindex.remove(bookstack.top().first.isbn,bookstack.top().second);
+                    bookstack.top().first.isbn=tmp;
+                    
                 }
             }else if(which[i]=="name"){
                 string60 tmp(content[i]);
@@ -165,6 +168,8 @@ int Librarysystem::insert(Book book,int pos){
                 }  
             }else if(which[i]=="price"){
                 bookstack.top().first.price=std::stof(content[i]);
+            }else{
+                throw std::exception();
             }
         }
         update();

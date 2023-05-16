@@ -40,8 +40,10 @@ int main(){
         }else if(instruction=="su"){
             if(cmd_cnt==3){
                 isvalid(account.Login(cmd[2].c_str(),cmd[3].c_str()));
-            }else{
+            }else if(cmd_cnt==2){
                 isvalid(account.Login(cmd[2].c_str()));
+            }else{
+                isvalid(-1);
             }
         }else if(instruction=="logout"){
             if(!ispriviledged(CUSTOMER))continue;
