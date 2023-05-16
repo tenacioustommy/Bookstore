@@ -1,7 +1,6 @@
 project(main)
 aux_source_directory(src SRC_SUB)
-aux_source_directory(. SRC_CUR)
-add_executable(code ${SRC_SUB} ${SRC_CUR})
+add_executable(code ${SRC_SUB})
 include_directories(include)
 
 

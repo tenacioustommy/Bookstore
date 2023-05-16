@@ -103,8 +103,6 @@ public:
         file.read(reinterpret_cast<char*>(&next),sizeof(next));
         if(next==-1){
                 vec[0]=tmp;
-                // next=file.tellg();
-                // file.seekp(next,std::ios::beg);
             // 将向量数据本身写入文件
                 next=4;
                 int tmpint=-1;

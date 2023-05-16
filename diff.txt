@@ -1,0 +1,4 @@
+Difference found at line 1:
+File1: + 38960.7 - 1388.4
+File2: + 38960.74 - 1388.40
+

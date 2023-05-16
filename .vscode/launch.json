@@ -5,10 +5,10 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "name": "(Windows) Launch",
-            "type": "cppvsdbg",
+            "name": "(gdb) Launch",
+            "type": "cppdbg",
             "request": "launch",
-            "program": "${workspaceFolder}/build/code.exe",
+            "program": "${workspaceFolder}/build/code",
             "args": [],
             "stopAtEntry": false,
             "cwd": "${workspaceFolder}",
