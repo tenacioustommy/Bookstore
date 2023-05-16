@@ -11,7 +11,7 @@
             "program": "${workspaceFolder}/build/code.exe",
             "args": [],
             "stopAtEntry": false,
-            "cwd": "${fileDirname}",
+            "cwd": "${workspaceFolder}",
             "environment": [],
             "console": "externalTerminal"
         },
@@ -26,7 +26,7 @@
         "args": [],
         "stopAtEntry": false,
         // "cwd": "D:/MinGW/bin/",
-        "cwd": "${fileDirname}",
+        "cwd": "${workspaceFolder}",
         "environment": [],
         "externalConsole": true,
         "MIMode": "gdb",
